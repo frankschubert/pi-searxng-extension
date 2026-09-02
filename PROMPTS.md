@@ -17,6 +17,15 @@ SearXNG matches unquoted words independently. A query like `Jane Doe age` can su
 
 The extension's `web_search` tool description (in `index.ts`) now instructs the model to quote multi-word proper nouns/titles but *not* the whole query — an earlier, more forceful wording caused the model to wrap the entire sentence in quotes (`"latest stable release of Node.js"`), which risks matching nothing since it demands that exact literal phrase appear on a page. The current wording gives a right/wrong example pair to prevent that overcorrection. If you tighten this further, re-run `/test-search-quoting` and a query with no proper noun (e.g. `test-search-explicit`) to check both under- and over-quoting.
 
+**Known limitation — this is not 100% reliable, and that's expected.** Repeated runs of the same query on Qwen3-14B-GGUF Q6_K_L show the model applies the quoting rule *probabilistically*, not deterministically:
+
+| Query | temp 0.7 | temp 0.3 |
+| --- | --- | --- |
+| "What is the birthdate of John Smith?" | 2/3 correctly quoted | 5/5 correctly quoted |
+| "How old is Angela Merkel?" | untested | 0/3 correctly quoted |
+
+Lowering temperature fixed one name completely and had zero effect on another — so this isn't a config knob you can turn to guarantee correctness, it's a real ceiling on how reliably a 14B model follows a tool-description instruction under sampling. If you need this to be deterministic (e.g. for an unattended pipeline), don't rely on the model to quote correctly — either validate/repair the query client-side in the extension before it hits SearXNG, or accept some fraction of noisier searches. We left `temperature` at the model's official default (0.7) rather than trading away general response quality for a partial, name-dependent improvement on this one behavior.
+
 ## Tested models
 
 Results below are from actually running each prompt (via `pi -p --mode json`, inspecting the tool-call trace, not just the final text) against a specific model+quant. **Only the model listed has been tested — assume nothing about other models.** The typical failure mode on smaller/weaker models is unreliable tool use: either never calling `web_search` at all, or hallucinating a plausible-looking answer without actually calling it.
