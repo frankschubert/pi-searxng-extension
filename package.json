@@ -1,0 +1,15 @@
+{
+  "name": "pi-searxng-extension",
+  "version": "1.0.0",
+  "description": "Minimal SearXNG web search extension for Pi coding agent",
+  "type": "module",
+  "private": true,
+  "pi": {
+    "extensions": ["./index.ts"]
+  },
+  "devDependencies": {
+    "@earendil-works/pi-ai": "0.80.8",
+    "@earendil-works/pi-coding-agent": "0.80.8",
+    "@earendil-works/pi-tui": "0.80.8"
+  }
+}
