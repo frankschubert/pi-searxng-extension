@@ -9,6 +9,13 @@ The `prompts/` directory contains [Pi prompt templates](https://github.com/badlo
 | `test-search-implicit.md` | `/test-search-implicit` | Asks for current information without naming the tool. Tests whether the model recognizes *when* to search on its own. |
 | `test-search-negative.md` | `/test-search-negative` | A pure arithmetic question. Tests that the model does **not** reach for `web_search` when it isn't needed. |
 | `test-search-multistep.md` | `/test-search-multistep` | Search + synthesize: fetch a result and summarize it in one sentence, rather than dumping raw search output. |
+| `test-search-quoting.md` | `/test-search-quoting` | Asks about a person by full name plus an unrelated qualifier (birth year). Tests whether the model quotes the multi-word name — see "Query quoting" below. |
+
+## Query quoting
+
+SearXNG matches unquoted words independently. A query like `Jane Doe age` can surface pages that only contain "Jane" or "age" in isolation, unrelated to the actual person. Wrapping the multi-word name/title in double quotes (`"Jane Doe" age`) forces an exact-phrase match on the name while leaving the rest as normal keywords — verified against a live instance: unquoted `Elon Musk age` pulled in unrelated pages (a Groundhog Day page, an unrelated homepage) purely from loose single-word matches, while `"Elon Musk" age` ranked Musk-specific results higher and dropped that noise.
+
+The extension's `web_search` tool description (in `index.ts`) now instructs the model to quote multi-word proper nouns/titles but *not* the whole query — an earlier, more forceful wording caused the model to wrap the entire sentence in quotes (`"latest stable release of Node.js"`), which risks matching nothing since it demands that exact literal phrase appear on a page. The current wording gives a right/wrong example pair to prevent that overcorrection. If you tighten this further, re-run `/test-search-quoting` and a query with no proper noun (e.g. `test-search-explicit`) to check both under- and over-quoting.
 
 ## Tested models
 
@@ -23,6 +30,7 @@ Results below are from actually running each prompt (via `pi -p --mode json`, in
 | `test-search-implicit` | **Tool-call reliable** without the tool being named in the prompt — correctly identified this needed a search. Same result-quality caveat as above. |
 | `test-search-negative` | **Pass.** No tool call for `17 * 24` — answered directly (`408`, correct). |
 | `test-search-multistep` | **Tool-call reliable**, retried multiple query phrasings. Reported failure honestly instead of fabricating a weather forecast. |
+| `test-search-quoting` | **Pass**, after strengthening the tool description to an explicit "you MUST" rule with a right/wrong example — the original softer wording ("wrap phrases that must stay together in quotes") was ignored entirely (`Marie Curie born 1867`, unquoted). Correctly produced `"Marie Curie" born 1867`, and correctly left single-token queries like `Node.js latest stable release` unquoted rather than over-quoting. |
 
 **Caveat — not a tool-use failure:** for `test-search-implicit` and `test-search-multistep`, SearXNG's default `general` category returned irrelevant snippets (e.g. searching "Hacker News top story" surfaced a fintech company called "Current," not `news.ycombinator.com`; Berlin weather searches returned nothing usable). The model's tool-calling behavior was correct in all five cases — it decided correctly whether to search, called the tool with sensible/refined queries, and never fabricated an answer when results were bad. The gap is in SearXNG engine/category selection for time-sensitive queries, which is a SearXNG config issue, not a `pi` or model issue.
 

@@ -154,7 +154,8 @@ export default function searxngExtension(pi: ExtensionAPI) {
     name: "web_search",
     label: "Web Search",
     description:
-      "Search the web using a self-hosted SearXNG instance. Returns titles, URLs, and text snippets. Use this for current events, documentation, or any information that may not be in your training data.",
+      "Search the web using a self-hosted SearXNG instance. Returns titles, URLs, and text snippets. Use this for current events, documentation, or any information that may not be in your training data. " +
+      'IMPORTANT - query quoting rule: unquoted words are matched independently, so combining a multi-word name/title with unrelated qualifiers as plain text (e.g. Jane Doe age) pulls in unrelated pages that only match one loose word. Wrap ONLY the multi-word proper noun or title itself in double quotes, and leave the rest of the query as normal unquoted keywords: "Jane Doe" age, "Node.js" latest stable release, "Elon Musk" net worth. Quote just the name/title, never the whole query as one long phrase - a full-sentence quote will usually match nothing.',
     promptSnippet: "Search the web for up-to-date information via SearXNG",
     parameters: Type.Object({
       query: Type.String({ description: "The search query" }),
