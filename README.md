@@ -39,6 +39,10 @@ You should see:
 SearXNG: http://localhost:8888  (env var SEARXNG_URL)
 ```
 
+### 4. Verify the model actually uses it
+
+Copy a prompt template from [`prompts/`](prompts/) into `~/.pi/agent/prompts/` and run it, e.g. `/announce-websearch`. See [PROMPTS.md](PROMPTS.md) — it checks that `web_search` gets called for real (not just described), and includes test results per model. Tool-calling reliability varies a lot by model, so treat this as a smoke test whenever you switch models.
+
 ## Usage
 
 ### Let the Agent Search Automatically
@@ -137,6 +141,7 @@ See [CONFIGURATION.md](CONFIGURATION.md) for more options.
 - **[INSTALL.md](INSTALL.md)** — Installation and setup instructions
 - **[USAGE.md](USAGE.md)** — Using the tool and commands
 - **[CONFIGURATION.md](CONFIGURATION.md)** — Environment variables and persistent setup
+- **[PROMPTS.md](PROMPTS.md)** — Example prompt templates to test tool-call reliability, with per-model results
 
 ## How It Works
 
