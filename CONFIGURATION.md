@@ -28,6 +28,34 @@ Formats:
 - Basic auth: `Basic base64(user:password)`
 - Custom: Any header value your instance requires
 
+**`SEARXNG_ENGINES`** — Comma-separated list of engine names to use, e.g. `qwant,yahoo,wiby,seznam,mojeek,naver`
+
+```bash
+export SEARXNG_ENGINES="qwant,yahoo,wiby,seznam,mojeek,naver"
+```
+
+This maps to SearXNG's `engines` query parameter and overrides category-based engine selection for every search this extension makes. It's the request-level equivalent of the `enabled_engines`/`disabled_engines` cookies the web UI sets — but note the API takes bare engine names (`qwant`), not the UI's `engine__category` form (`qwant__general`). Unset = use whichever engines are enabled for the category on the server.
+
+**`SEARXNG_CATEGORIES`** — Comma-separated categories to search (default: `general`)
+
+```bash
+export SEARXNG_CATEGORIES="general,news"
+```
+
+**`SEARXNG_LANGUAGE`** — Search language (default: server default, e.g. `en`, `auto`)
+
+```bash
+export SEARXNG_LANGUAGE="en"
+```
+
+**`SEARXNG_SAFESEARCH`** — `0` (off), `1` (moderate), `2` (strict)
+
+```bash
+export SEARXNG_SAFESEARCH="0"
+```
+
+All of these are ordinary SearXNG `/search` API query parameters (see [SearXNG's search API docs](https://docs.searxng.org/dev/search_api.html)) — the extension's requests are stateless (no cookies), so anything you've set via the web UI's cookie-based preferences has no effect here and must be set via these env vars instead. Run `/searxng` inside Pi to see the currently active values.
+
 ## Persistent Configuration
 
 ### Option 1: Shell Profile (Recommended for most users)

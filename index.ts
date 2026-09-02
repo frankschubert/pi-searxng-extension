@@ -43,6 +43,10 @@ interface SearxResponse {
 
 const ENV_URL = "SEARXNG_URL";
 const ENV_AUTH = "SEARXNG_AUTHORIZATION";
+const ENV_ENGINES = "SEARXNG_ENGINES";
+const ENV_CATEGORIES = "SEARXNG_CATEGORIES";
+const ENV_LANGUAGE = "SEARXNG_LANGUAGE";
+const ENV_SAFESEARCH = "SEARXNG_SAFESEARCH";
 const MAX_SNIPPET_LEN = 180;
 
 // ─── Extension ──────────────────────────────────────────────────────────────────
@@ -79,7 +83,23 @@ export default function searxngExtension(pi: ExtensionAPI) {
     const url = new URL("/search", base);
     url.searchParams.set("q", query);
     url.searchParams.set("format", "json");
-    url.searchParams.set("categories", "general");
+    if (process.env[ENV_ENGINES]) {
+      // SearXNG merges categories' default engines in alongside an explicit
+      // engines list, so sending both defeats the engine restriction - omit
+      // categories entirely when engines is set.
+      url.searchParams.set("engines", process.env[ENV_ENGINES]!);
+    } else {
+      url.searchParams.set(
+        "categories",
+        process.env[ENV_CATEGORIES] || "general"
+      );
+    }
+    if (process.env[ENV_LANGUAGE]) {
+      url.searchParams.set("language", process.env[ENV_LANGUAGE]!);
+    }
+    if (process.env[ENV_SAFESEARCH]) {
+      url.searchParams.set("safesearch", process.env[ENV_SAFESEARCH]!);
+    }
 
     const headers: Record<string, string> = {};
     const auth = await getAuthorization();
@@ -265,6 +285,16 @@ export default function searxngExtension(pi: ExtensionAPI) {
           : `SearXNG not configured. Set ${ENV_URL} environment variable.`,
         base ? "info" : "warning"
       );
+      if (base) {
+        const categories = process.env[ENV_CATEGORIES] || "general";
+        const engines = process.env[ENV_ENGINES] || "(category default)";
+        const language = process.env[ENV_LANGUAGE] || "(server default)";
+        const safesearch = process.env[ENV_SAFESEARCH] || "(server default)";
+        ctx.ui.notify(
+          `categories=${categories}  engines=${engines}  language=${language}  safesearch=${safesearch}`,
+          "info"
+        );
+      }
     },
   });
 }
