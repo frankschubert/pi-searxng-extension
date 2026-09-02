@@ -190,18 +190,29 @@ You've hit rate limits. Set up your own SearXNG instance (see Setup section abov
 - **Open source** — Fully transparent: https://github.com/searxng/searxng
 - **Aggregated results** — Results come from 70+ search engines
 
-## What's Different from `Otard95/pi-extensions`?
+## Credits & Attribution
 
-The full `pi-extensions` package had npm dependency conflicts. This extension:
+**Based on** the excellent SearXNG extension from [`Otard95/pi-extensions`](https://github.com/Otard95/pi-extensions) by [@Otard95](https://github.com/Otard95).
+
+This project is a simplified, standalone refactor that:
 - Removes npm peer dependency issues
-- Uses only built-in Pi APIs
-- Single file, no utils imports
-- Simpler configuration (env vars only)
-- Same functionality, same UX
+- Uses only built-in Pi APIs (no utils imports)
+- Maintains the same core functionality and UX
+- Focuses on minimal, easy-to-understand code
+
+**Original source**: https://github.com/Otard95/pi-extensions/blob/main/extensions/searxng/
+
+**What's different**:
+- Single-file implementation (no utils needed)
+- Environment-variable only configuration
+- No npm install conflicts
+- Cleaner for users who just want SearXNG support
+
+Thanks to [@Otard95](https://github.com/Otard95) for the original design and implementation!
 
 ## License
 
-MIT
+MIT — See [LICENSE](LICENSE) for details
 
 ## Related Projects
 

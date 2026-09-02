@@ -1,22 +1,30 @@
 /**
  * SearXNG Extension for Pi Coding Agent
  *
- * Gives the LLM a web_search tool and adds /search + /searxng commands.
+ * Simplified standalone refactor of the original SearXNG extension from:
+ * https://github.com/Otard95/pi-extensions/blob/main/extensions/searxng/
  *
- * URL configuration (priority order):
- *   1. SEARXNG_URL environment variable
- *   2. "searxng.url" in settings.json
+ * Original author: @Otard95 (https://github.com/Otard95)
+ * This refactor: Frank Schubert
  *
- * Authorization (priority order):
- *   1. SEARXNG_AUTHORIZATION environment variable
- *   2. "searxng.authorization" in settings.json (supports "pass:" prefix)
+ * Modifications from the original:
+ * - Removed npm peer dependencies
+ * - Removed external utils imports (@sinclair/typebox, utils/array, utils/secret, utils/settings)
+ * - Environment-variable only configuration
+ * - Single-file implementation for easy deployment
+ * - Simplified error handling (removed Result monad)
+ *
+ * Original functionality preserved:
+ * - web_search tool for LLM
+ * - /search and /searxng commands
+ * - Same response formatting and UX
  */
 
 import { Type } from "@earendil-works/pi-ai";
 import { type ExtensionAPI, keyHint } from "@earendil-works/pi-coding-agent";
 import { Text } from "@earendil-works/pi-tui";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── Types ──────────────────────────────────────────────────────────────────────
 
 interface SearxResult {
   title: string;
@@ -31,16 +39,16 @@ interface SearxResponse {
   answers?: string[];
 }
 
-// ─── Constants ─────────────────────────────────────────────────────────────────
+// ─── Constants ──────────────────────────────────────────────────────────────────
 
 const ENV_URL = "SEARXNG_URL";
 const ENV_AUTH = "SEARXNG_AUTHORIZATION";
 const MAX_SNIPPET_LEN = 180;
 
-// ─── Extension ────────────────────────────────────────────────────────────────
+// ─── Extension ──────────────────────────────────────────────────────────────────
 
 export default function searxngExtension(pi: ExtensionAPI) {
-  // ── Helpers ────────────────────────────────────────────────────────────────
+  // ── Helpers ──────────────────────────────────────────────────────────────
 
   function getBaseUrl(): string | undefined {
     if (process.env[ENV_URL]) return process.env[ENV_URL];
@@ -120,7 +128,7 @@ export default function searxngExtension(pi: ExtensionAPI) {
     return lines.join("\n").trimEnd();
   }
 
-  // ── web_search tool (for the LLM) ──────────────────────────────────────────
+  // ── web_search tool (for the LLM) ─────────────────────────────────────────
 
   pi.registerTool({
     name: "web_search",
@@ -219,7 +227,7 @@ export default function searxngExtension(pi: ExtensionAPI) {
     },
   });
 
-  // ── /search command (for the user) ─────────────────────────────────────────
+  // ── /search command (for the user) ────────────────────────────────────────
 
   pi.registerCommand("search", {
     description: "Search the web and pass results to the LLM. Usage: /search <query>",
@@ -244,7 +252,7 @@ export default function searxngExtension(pi: ExtensionAPI) {
     },
   });
 
-  // ── /searxng command (configuration) ───────────────────────────────────────
+  // ── /searxng command (configuration) ─────────────────────────────────────
 
   pi.registerCommand("searxng", {
     description: "Show current SearXNG configuration",
